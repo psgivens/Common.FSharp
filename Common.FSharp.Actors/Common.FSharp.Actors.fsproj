@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common.FSharp\Common.FSharp.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AggregateActor.fs" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Infrastructure.fs" />
+    <Compile Include="SubjectActor.fs" />
+    <Compile Include="EventSourcingActors.fs" />
+    <Compile Include="CrudMessagePersistanceActor.fs" />
+    <Compile Include="NewtonsoftHack.fs" />
+    <Compile Include="RequestReplyActor.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Akka.FSharp" Version="1.3.12" />
+  </ItemGroup>
+</Project>
