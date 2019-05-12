@@ -26,7 +26,7 @@ let spawnRequestReplyConditionalActor<'TCommand,'TEvent> inFilter outFilter sys 
                     | None -> ()
             | :? string as value ->
                 match value with 
-                | "Unsubscribe" -> 
+                | "Unsubscribe" ->  
                     mailbox.Self |> SubjectActor.unsubscribeFrom actors.Events
                     mailbox.Self |> mailbox.Context.Stop 
                 | _ -> ()

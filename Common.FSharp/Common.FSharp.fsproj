@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Library.fs" />
+    <Compile Include="Envelopes.fs" />
     <Compile Include="CommandHandler.fs" />
     <Compile Include="EventSourceGherkin.fs" />
   </ItemGroup>

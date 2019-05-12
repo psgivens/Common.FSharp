@@ -63,22 +63,21 @@ module Envelope =
             (userId:UserId) 
             (transId:TransId) 
             (streamId:StreamId) 
-            (version:Version) 
             item =
         streamId 
         |> envelope 
             userId 
             transId 
             (Guid.NewGuid()) 
-            version 
+            (Version.box 0s)
             (DateTimeOffset.Now) 
             item
 
-    let reuseEnvelope<'a,'b> streamId (func:'a->'b) (envelope:Envelope<'a>) ={
+    let reuseEnvelope<'a,'b> streamId (version:Version) (func:'a->'b) (envelope:Envelope<'a>) ={
         Id = envelope.Id
         UserId = envelope.UserId
         StreamId = streamId
-        Version = envelope.Version
+        Version = version
         Created = envelope.Created
         Item = func envelope.Item
         TransactionId = envelope.TransactionId 

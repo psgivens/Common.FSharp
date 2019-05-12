@@ -21,12 +21,17 @@ let create<'TState, 'TCommand, 'TEvent>
         let newVersion = incrementVersion version
         // publish new event
         let envelope = 
-            envelopWithDefaults 
-                cmdenv.UserId 
-                cmdenv.TransactionId 
-                cmdenv.StreamId 
+            reuseEnvelope
+                cmdenv.StreamId
                 newVersion
-                event
+                (fun x -> event)
+                cmdenv
+            // envelopWithDefaults 
+            //     cmdenv.UserId 
+            //     cmdenv.TransactionId 
+            //     cmdenv.StreamId 
+            //     newVersion
+            //     event
         envelope |> self.Tell        
         newVersion    
 

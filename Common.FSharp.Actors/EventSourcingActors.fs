@@ -32,6 +32,12 @@ let spawn<'TCommand, 'TEvent, 'TState>
                  buildState,
                  handle,
                  persist)
+        // <| [Akka.Routing.ConsistentHashingGroup ([
+        //         "sample"
+        //    ])
+        //    :> Akka.Routing.RouterConfig
+        //    |> SpawnOption.Router ]
+
         <| [Akka.Routing.ConsistentHashingPool (10, fun msg -> 
                 match msg with
                 | :? Envelope<'TCommand> as cmdenv -> cmdenv.StreamId :> obj

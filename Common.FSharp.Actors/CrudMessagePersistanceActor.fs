@@ -19,7 +19,7 @@ let private create<'TCommand>
                 (Some(envelope))
                 
             envelope 
-            |> Envelope.reuseEnvelope envelope.StreamId ignore
+            |> Envelope.reuseEnvelope envelope.StreamId (Version.box 0s) ignore
             |> eventSubject.Tell
         with
             | ex -> errorSubject <! ex
