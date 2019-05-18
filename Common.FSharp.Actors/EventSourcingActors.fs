@@ -32,11 +32,6 @@ let spawn<'TCommand, 'TEvent, 'TState>
                  buildState,
                  handle,
                  persist)
-        // <| [Akka.Routing.ConsistentHashingGroup ([
-        //         "sample"
-        //    ])
-        //    :> Akka.Routing.RouterConfig
-        //    |> SpawnOption.Router ]
 
         <| [Akka.Routing.ConsistentHashingPool (10, fun msg -> 
                 match msg with
@@ -50,3 +45,13 @@ let spawn<'TCommand, 'TEvent, 'TState>
       Actor=aggregateActor;
       Events=persistEventSubject;
       Errors=errorSubject }
+
+
+
+// ***** Replace hashing pool with this group ****** 
+
+        // <| [Akka.Routing.ConsistentHashingGroup ([
+        //         "sample"
+        //    ])
+        //    :> Akka.Routing.RouterConfig
+        //    |> SpawnOption.Router ]

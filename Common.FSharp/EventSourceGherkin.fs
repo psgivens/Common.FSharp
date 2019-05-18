@@ -30,8 +30,7 @@ type TestConditions<'TCommand,'TEvent,'TState when 'TEvent : equality and 'TStat
         // TODO: Create better error message
         sprintf "%s\n\texpected: %A\n\tactual: %A" name expected actual
         |> TestFailure 
-        |> raise
-    
+        |> raise  
     
     let testException name (expected:System.Exception option) (actual:System.Exception) = 
         match expected with

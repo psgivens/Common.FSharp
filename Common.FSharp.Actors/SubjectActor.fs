@@ -4,7 +4,7 @@ module Common.FSharp.Actors.SubjectActor
 open Akka.Actor
 open Akka.FSharp
 
-type SubjectAction =
+type private SubjectAction =
     | Subscribe of IActorRef
     | Unsubscribe of IActorRef
 
@@ -29,7 +29,9 @@ let spawn system name =
                          |> List.filter (fun item -> 
                             item <> actor))        
             | _ -> 
-                subscribers |> List.iter (fun actor -> actor.Tell message)
+                // publish to all subscribers
+                let tellSubscriber (actor:IActorRef) = actor.Tell message
+                subscribers |> List.iter tellSubscriber
                 return! loop subscribers
         }        
         loop []

@@ -5,6 +5,11 @@
   <ItemGroup>
     <Compile Include="Envelopes.fs" />
     <Compile Include="CommandHandler.fs" />
+    <Compile Include="Microservices.fs" />
     <Compile Include="EventSourceGherkin.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="newtonsoft.json" Version="12.0.2" />
+    <PackageReference Include="suave" Version="2.5.4" />
   </ItemGroup>
 </Project>

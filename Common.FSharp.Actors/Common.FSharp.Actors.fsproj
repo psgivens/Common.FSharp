@@ -6,9 +6,9 @@
     <ProjectReference Include="..\Common.FSharp\Common.FSharp.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AggregateActor.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Infrastructure.fs" />
+    <Compile Include="AggregateActor.fs" />
     <Compile Include="SubjectActor.fs" />
     <Compile Include="EventSourcingActors.fs" />
     <Compile Include="CrudMessagePersistanceActor.fs" />

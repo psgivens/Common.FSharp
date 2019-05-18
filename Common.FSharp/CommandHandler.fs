@@ -1,20 +1,20 @@
 ﻿module Common.FSharp.CommandHandlers
 
+
 type CommandHandlerFunction<'state> = ('state -> Async<'state>)
 
-type CommandHandlerBuilder<'event, 'state> (raise:'state -> 'event -> 'state) =
-    member this.Bind ((result:Async<'event>), (rest:unit -> CommandHandlerFunction<'state>)) =
-        fun state -> 
-            async {
-                let! event = result                
-                return! (rest ()) (raise state event)
-            }
-    member this.Return (result:Async<'event>) = 
-        fun state -> 
-            async { 
-                let! event = result
-                return raise state event
-            }
+type CommandHandlerBuilder<'event, 'state> (apply:'state -> 'event -> 'state) =
+    member this.Bind ((result:Async<'event>), (rest:unit -> CommandHandlerFunction<'state>)) state =
+        async {
+            let! event = result  
+            let state' = apply state event              
+            return! rest () state'
+        }
+    member this.Return (result:Async<'event>) state = 
+        async { 
+            let! event = result
+            return apply state event
+        }
 
 [<RequireQualifiedAccess>]
 module Handler =
