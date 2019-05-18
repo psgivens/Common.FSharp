@@ -28,4 +28,3 @@ let restful (processRequest:'a -> WebPart) :WebPart=
 let restfulPathScan (processRequest:'a -> 'b -> WebPart) pathArgs :WebPart = 
   Writers.setMimeType "application/json; charset=utf-8"
   >=> request (getDtoFromReq >> (processRequest pathArgs))
-
