@@ -46,15 +46,17 @@ let create<'TState, 'TCommand, 'TEvent>
             } |> Async.Start
 
         let getState streamId =
+            let getVersion e = e.Version 
+
             let events = 
                 store.GetEvents streamId 
                 // Crudely remove concurrency errors
                 // TODO: Devise error correction mechanism
-                |> List.distinctBy (fun e -> e.Version)
+                |> List.distinctBy getVersion
 
             let version = 
                 if events |> List.isEmpty then Version.box 0s
-                else events |> List.last |> (fun e -> e.Version)
+                else events |> List.last |> getVersion
 
             // Build current state
             let state = buildState None (events |> List.map unpack)
