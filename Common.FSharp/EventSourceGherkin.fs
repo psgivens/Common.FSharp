@@ -1,7 +1,7 @@
 module Common.FSharp.EventSourceGherkin
 
 type Preconditions<'TEvent,'TState> = 
-    | State of 'TState
+    | State of 'TState option
     | Events of 'TEvent list 
 
 type SystemUnderTest<'TCommand,'TEvent> =
@@ -9,12 +9,12 @@ type SystemUnderTest<'TCommand,'TEvent> =
     | Command of 'TCommand
 
 type TestResults<'TEvent,'TState> = 
-    | OK of 'TEvent * 'TState
+    | OK of 'TEvent * 'TState option
     | Error of System.Exception
 
 type PostConditions<'TEvent,'TState> = {
     Events: 'TEvent list option
-    State: 'TState option
+    State: 'TState option option
     Error: System.Exception option }
 
 type TestFailure (error) = 
@@ -24,7 +24,9 @@ type TestFailure (error) =
 
    
 type TestConditions<'TCommand,'TEvent,'TState when 'TEvent : equality and 'TState : equality>  
-        (buildInitialState, buildState:('TState -> 'TEvent list -> 'TState), handle) = 
+        (buildInitialState, buildState:('TState option -> 'TEvent list -> 'TState option)
+        // , handle // TODO: Take a `handle` function to handle Command messages
+        ) = 
 
     let testFailure (name:string, expected:'a, actual:'a) = 
         // TODO: Create better error message
@@ -66,9 +68,11 @@ type TestConditions<'TCommand,'TEvent,'TState when 'TEvent : equality and 'TStat
                     OK(events,state)
                     
                 | Command(command) -> 
-                    let event = handle preState command
-                    let state = [event] |> buildState preState 
-                    OK([event],state)
+                    // TODO: Implement Command handling in tests
+                    failwith "Commands not supported at this time."
+                    // let event = handle preState command
+                    // let state = [event] |> buildState preState 
+                    // OK([event],state)
             with
             | ex -> Error(ex)
         

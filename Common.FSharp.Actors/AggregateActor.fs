@@ -21,6 +21,8 @@ let private raiseVersionedEvent (self:IActorRef) cmdenv (version:Version) event 
     envelope |> self.Tell        
     newVersion    
 
+// TODO: Pass in the processing unit
+// FIXME: Pass in the processing unit
 let create<'TState, 'TCommand, 'TEvent> 
     (   eventSubject:IActorRef,
         invalidMessageSubject:IActorRef,
@@ -33,6 +35,8 @@ let create<'TState, 'TCommand, 'TEvent>
     let child streamId (mailbox':Actor<obj>) =
         let handleCommand (state, version) cmdenv = 
             async {
+                // TODO: Document what is happening here. 
+                
                 let raiseVersionedEvent' = raiseVersionedEvent mailbox'.Self cmdenv
                 let commandHandlers = CommandHandlers raiseVersionedEvent'
                 do! cmdenv

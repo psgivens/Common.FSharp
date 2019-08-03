@@ -15,6 +15,7 @@ let spawn<'TCommand, 'TEvent, 'TState>
         name,
         eventStore,
         buildState:'TState option -> 'TEvent list -> 'TState option,
+        // FIXME: Ask for dependency injection object factory: CommandHandlers -> DIObject
         handle:CommandHandlers<'TEvent, Version> -> 'TState option -> Envelope<'TCommand> -> CommandHandlerFunction<Version>,
         persist:UserId -> StreamId -> 'TState option -> unit) :ActorIO<'TCommand> = 
 
