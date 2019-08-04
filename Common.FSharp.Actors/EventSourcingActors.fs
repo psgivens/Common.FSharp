@@ -11,13 +11,13 @@ open Common.FSharp.Actors
 open Common.FSharp.Actors.Infrastructure
 
 let spawn<'TCommand, 'TEvent, 'TState>
-   (    sys,
+   (    eventStore,
+        persist:UserId -> StreamId -> 'TState option -> unit, 
         name,
-        eventStore,
+        sys,
         buildState:'TState option -> 'TEvent list -> 'TState option,
-        // FIXME: Ask for dependency injection object factory: CommandHandlers -> DIObject
-        handle:CommandHandlers<'TEvent, Version> -> 'TState option -> Envelope<'TCommand> -> CommandHandlerFunction<Version>,
-        persist:UserId -> StreamId -> 'TState option -> unit) :ActorIO<'TCommand> = 
+        handle:CommandHandlers<'TEvent, Version> -> 'TState option -> Envelope<'TCommand> -> CommandHandlerFunction<Version>
+        ) :ActorIO<'TCommand> = 
 
     // Create a subject so that the next step can subscribe. 
     let persistEventSubject = SubjectActor.spawn sys (name + "_Events")
