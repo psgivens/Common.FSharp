@@ -22,7 +22,7 @@ let incrementVersion version =
     let value = Version.unbox version
     Version.box <| value + 1s
 
-let buildState evolve = List.fold (fun st evt -> Some (evolve st evt))
+let buildState (evolve:'s option -> 'evt -> 's option) = List.fold evolve 
 
 let defaultDate = "1900/1/1" |> DateTime.Parse
 let interpret naMessage (format:string) (date:DateTime) =
@@ -84,6 +84,13 @@ module Envelope =
         }
         
     let unpack envelope = envelope.Item
+
+    let reuseAndVersionEnvelope cmdenv (version:Version) event =
+        reuseEnvelope
+            cmdenv.StreamId
+            (incrementVersion version)
+            (fun x -> event)
+            cmdenv
 
 type InvalidCommand (state:obj, command:obj) =
     inherit System.Exception(sprintf "Invalid command.\n\tcommand: %A\n\tstate: %A" command state)

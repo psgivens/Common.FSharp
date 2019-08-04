@@ -1,13 +1,15 @@
-module Common.FSharp.EventSourceGherkin
+module Common.FSharp.CommandHandlerGherkin
 
+open Common.FSharp.CommandHandlers
+open Common.FSharp.Envelopes
 
 type Preconditions<'TEvent,'TState> = 
     | State of 'TState option
     | Events of 'TEvent list 
 
 type SystemUnderTest<'TCommand,'TEvent> =
-    | Events of 'TEvent list
-    // | Command of 'TCommand
+    // | Events of 'TEvent list
+    | Command of 'TCommand
 
 type TestResults<'TEvent,'TState> = 
     | OK of 'TEvent * 'TState option
@@ -26,7 +28,10 @@ type TestFailure (error) =
    
 type TestConditions<'TCommand,'TEvent,'TState when 'TEvent : equality and 'TState : equality>  
         (buildInitialState, 
-         buildState:('TState option -> 'TEvent list -> 'TState option)
+         buildState:('TState option -> 'TEvent list -> 'TState option),
+         handle: 'TState option -> 'TCommand -> CommandHandlerFunction<Version>
+
+        // , handle // TODO: Take a `handle` function to handle Command messages
         ) = 
 
     let testFailure (name:string, expected:'a, actual:'a) = 
@@ -67,6 +72,14 @@ type TestConditions<'TCommand,'TEvent,'TState when 'TEvent : equality and 'TStat
                 | Events(events) -> 
                     let state = events |> buildState preState 
                     OK(events,state)
+                    
+                // | Command(command) -> 
+                //     let 
+                //     // TODO: Implement Command handling in tests
+                //     failwith "Commands not supported at this time."
+                //     // let event = handle preState command
+                //     // let state = [event] |> buildState preState 
+                //     // OK([event],state)
             with
             | ex -> Error(ex)
         
@@ -90,6 +103,8 @@ type TestConditions<'TCommand,'TEvent,'TState when 'TEvent : equality and 'TStat
             if Option.isSome expected.Events then failwith <| sprintf "Expected events.\n\terror:%A" ex
             ex |> testException "error" expected.Error
     
+    
+
 module TestData =
     
     let nullPostConditions = {

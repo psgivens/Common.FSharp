@@ -9,20 +9,20 @@ open Common.FSharp.Envelopes
 
 type Finished = Finished of TransId
 
-let private raiseVersionedEvent (self:IActorRef) cmdenv (version:Version) event =
-    let newVersion = incrementVersion version
-    // publish new event
-    let envelope = 
-        reuseEnvelope
-            cmdenv.StreamId
-            newVersion
-            (fun x -> event)
-            cmdenv
-    envelope |> self.Tell        
-    newVersion    
+// let private raiseVersionedEvent (self:IActorRef) cmdenv (version:Version) event =
+//     let newVersion = incrementVersion version
+//     // publish new event
+//     let envelope = 
+//         reuseEnvelope
+//             cmdenv.StreamId
+//             newVersion
+//             (fun x -> event)
+//             cmdenv
+//     envelope |> self.Tell        
+//     newVersion    
 
-// TODO: Pass in the processing unit
-// FIXME: Pass in the processing unit
+
+
 let create<'TState, 'TCommand, 'TEvent> 
     (   eventSubject:IActorRef,
         invalidMessageSubject:IActorRef,
@@ -36,13 +36,24 @@ let create<'TState, 'TCommand, 'TEvent>
         let handleCommand (state, version) cmdenv = 
             async {
                 // TODO: Document what is happening here. 
-                
-                let raiseVersionedEvent' = raiseVersionedEvent mailbox'.Self cmdenv
-                let commandHandlers = CommandHandlers raiseVersionedEvent'
+
+                let raiseVersionedEvent (version:Version) event =
+                    let evtenv = Envelope.reuseAndVersionEnvelope cmdenv version event
+                    evtenv |> mailbox'.Self.Tell
+                    evtenv.Version
+
+                //  raiseVersionedEvent mailbox'.Self cmdenv
+                let commandHandlers = CommandHandlers raiseVersionedEvent
+
                 do! cmdenv
                     |> handle commandHandlers state
                     |> Handler.Run version
                     |> Async.Ignore
+
+                // let! events = cmdenv
+                //     |> handle commandHandlers state
+                //     |> Handler.Run version
+                // events |> Seq.iter (mailbox'.Self.Tell)
 
                 // 'stop' case in receiveEvents
                 mailbox'.Self <! cmdenv.TransactionId
