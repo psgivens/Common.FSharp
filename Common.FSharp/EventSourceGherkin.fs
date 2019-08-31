@@ -18,6 +18,28 @@ type PostConditions<'TEvent,'TState> = {
     State: 'TState option option
     Error: System.Exception option }
 
+let expectState state =
+    {
+        Events = None
+        State = state |> Some
+        Error = None
+    }
+
+let expectEvents events=
+    {
+        Events = events
+        State = None
+        Error = None
+    }
+
+let expectError error =
+    {
+        Events = None
+        State = None
+        Error = error |> Some
+    }
+
+
 type TestFailure (error) = 
     inherit System.Exception (error)
 
