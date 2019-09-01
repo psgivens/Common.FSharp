@@ -1,5 +1,6 @@
 module Common.FSharp.EventSourceGherkin
 
+open Common.FSharp.Envelopes
 
 type Preconditions<'TEvent,'TState> = 
     | State of 'TState option
@@ -39,12 +40,17 @@ let expectError error =
         Error = error |> Some
     }
 
+let doNotPersist<'a> (uid:UserId) (sid:StreamId) (state:'a option) = ()
+
+let runWaitAndIgnore (task:'a when 'a :> System.Threading.Tasks.Task<'b>) = 
+    task
+    |> Async.AwaitTask
+    |> Async.Ignore
+    |> Async.RunSynchronously
+
 
 type TestFailure (error) = 
     inherit System.Exception (error)
-
-//exception TestFailure of string
-
    
 type TestConditions<'TCommand,'TEvent,'TState when 'TEvent : equality and 'TState : equality>  
         (buildInitialState, 
@@ -119,3 +125,23 @@ module TestData =
         Events = None
         Error = None
     }
+
+type InMemoryEventStore<'a> =
+  val mutable events : Map<StreamId, Envelope<'a> list> 
+  new () = { events = Map.empty }
+  interface IEventStore<'a> with
+    member this.GetEvents (streamId:StreamId) =
+      match this.events |> Map.tryFind streamId with
+      | Some (events') -> 
+        events'
+        |> Seq.toList 
+        |> List.sortBy(fun x -> x.Version)
+      | None -> []
+    member this.AppendEvent (envelope:Envelope<'a>) =
+      let store = this :> IEventStore<'a>
+      let events' = store.GetEvents envelope.StreamId
+      this.events <- this.events |> Map.add envelope.StreamId (envelope::events')
+
+module Tests =
+  let userId = UserId.create ()
+  let envelop (payload:'a) = envelopWithDefaults userId (TransId.create ()) payload
