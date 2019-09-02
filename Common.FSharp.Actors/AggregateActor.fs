@@ -35,8 +35,9 @@ let create<'TState, 'TCommand, 'TEvent>
     let child streamId (mailbox':Actor<obj>) =
         let handleCommand (state, version) cmdenv = 
             async {
-                // TODO: Document what is happening here. 
-
+                // Creates a function for telling this actor that an event has been raised.
+                // The event sourcing infrastructure will take care of creating the new 
+                // version to pass to this method.
                 let raiseVersionedEvent (version:Version) event =
                     let evtenv = Envelope.reuseAndVersionEnvelope cmdenv version event
                     evtenv |> mailbox'.Self.Tell
@@ -45,16 +46,16 @@ let create<'TState, 'TCommand, 'TEvent>
                 //  raiseVersionedEvent mailbox'.Self cmdenv
                 let commandHandlers = CommandHandlers raiseVersionedEvent
 
+                // This kicks off the domain command handler which may produce 
+                // several events asynchronously. After `handleCommand` is started
+                // the actor moves to a receiving events state. 
                 do! cmdenv
                     |> handle commandHandlers state
                     |> Handler.Run version
                     |> Async.Ignore
 
-                // let! events = cmdenv
-                //     |> handle commandHandlers state
-                //     |> Handler.Run version
-                // events |> Seq.iter (mailbox'.Self.Tell)
-
+                // When the domain command handler finishes, we need to trigger a 
+                // move back to receiving commands. 
                 // 'stop' case in receiveEvents
                 mailbox'.Self <! cmdenv.TransactionId
 
@@ -82,9 +83,15 @@ let create<'TState, 'TCommand, 'TEvent>
             return! 
                 match msg with 
                 | :? Envelope<'TCommand> as cmdenv -> 
+
+                    // Process this command
                     cmdenv |> handleCommand stateAndVersion
+
+                    // Transition this actor to receiving events
                     [] |> recieveEvents cmdenv.TransactionId stateAndVersion 
 
+                // If we are receving commands, we can ignore anything else
+                // because we are not generated events.
                 | _ -> stateAndVersion |> receiveCommand
             }
         and recieveEvents transId stateAndVersion events = actor {

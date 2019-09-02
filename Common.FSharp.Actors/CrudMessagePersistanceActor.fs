@@ -16,7 +16,7 @@ let private create<'TCommand>
             persist
                 envelope.UserId
                 envelope.StreamId
-                (Some(envelope))
+                (Some envelope)
                 
             envelope 
             |> Envelope.reuseEnvelope envelope.StreamId (Version.box 0s) ignore
