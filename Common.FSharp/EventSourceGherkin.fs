@@ -129,6 +129,7 @@ module TestData =
 type InMemoryEventStore<'a> =
   val mutable events : Map<StreamId, Envelope<'a> list> 
   new () = { events = Map.empty }
+  new eventMap = { events = eventMap }
   interface IEventStore<'a> with
     member this.GetEvents (streamId:StreamId) =
       match this.events |> Map.tryFind streamId with
