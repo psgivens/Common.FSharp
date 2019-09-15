@@ -9,20 +9,6 @@ open Common.FSharp.Envelopes
 
 type Finished = Finished of TransId
 
-// let private raiseVersionedEvent (self:IActorRef) cmdenv (version:Version) event =
-//     let newVersion = incrementVersion version
-//     // publish new event
-//     let envelope = 
-//         reuseEnvelope
-//             cmdenv.StreamId
-//             newVersion
-//             (fun x -> event)
-//             cmdenv
-//     envelope |> self.Tell        
-//     newVersion    
-
-
-
 let create<'TState, 'TCommand, 'TEvent> 
     (   eventSubject:IActorRef,
         invalidMessageSubject:IActorRef,
@@ -134,6 +120,18 @@ let create<'TState, 'TCommand, 'TEvent>
         getState streamId |> receiveCommand
     
     let rec loop children = actor {
+
+        // For each aggregate, we create a child to handle the command, and alll
+        // events coming from that command. If another command comes in while we 
+        // are handling the first command, it will be directed to the same child
+        // actor and stashed. 
+        //
+        // **Why not just the ConsistentHashingPool?**
+        // An actor in the pool may handle commands for many different aggregates,
+        // whereas, our child aggregate handles commands & and events for only 
+        // on aggregate. This is necessary because aggregate actor needs to maintain
+        // the state of the aggregate as it processes the command and events. 
+
         let! msg = mailbox.Receive ()
 
         let getChild streamId =

@@ -145,4 +145,4 @@ type InMemoryEventStore<'a> =
 
 module Tests =
   let userId = UserId.create ()
-  let envelop (payload:'a) = envelopWithDefaults userId (TransId.create ()) payload
+  let envelop<'a> streamId (payload:'a) = envelopWithDefaults userId (TransId.create ()) streamId payload

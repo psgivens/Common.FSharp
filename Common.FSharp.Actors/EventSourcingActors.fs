@@ -49,7 +49,7 @@ let spawn<'TCommand, 'TEvent, 'TState>
 
 
 
-// ***** Replace hashing pool with this group ****** 
+// ***** TODO: Replace hashing pool with this group ****** 
 
         // <| [Akka.Routing.ConsistentHashingGroup ([
         //         "sample"
